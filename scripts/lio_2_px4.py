@@ -28,10 +28,20 @@ def odometry_cb(msg: Odometry):
     px4_compliant_msg.pose.pose.orientation.y = -msg.pose.pose.orientation.y
     px4_compliant_msg.pose.pose.orientation.z = -msg.pose.pose.orientation.z
 
-    px4_compliant_msg.child_frame_id = 20
+    px4_compliant_msg.twist.twist.linear.x = px4_compliant_msg.twist.twist.linear.x
+    px4_compliant_msg.twist.twist.linear.y = -px4_compliant_msg.twist.twist.linear.y
+    px4_compliant_msg.twist.twist.linear.z = -px4_compliant_msg.twist.twist.linear.z
 
-    odom_pub.publish(px4_compliant_msg)
-    odom_pub_rate.sleep()
+    px4_compliant_msg.twist.twist.angular.x = px4_compliant_msg.twist.twist.angular.x
+    px4_compliant_msg.twist.twist.angular.y = -px4_compliant_msg.twist.twist.angular.y
+    px4_compliant_msg.twist.twist.angular.z = -px4_compliant_msg.twist.twist.angular.z
+    
+    px4_compliant_msg.child_frame_id = "base_link"
+
+    global time_last_odom
+    if(rospy.Time.now() - time_last_odom > rospy.Duration(0.015)):
+        odom_pub.publish(px4_compliant_msg)
+        time_last_odom = rospy.Time.now()
 
 
 if __name__ == "__main__":
@@ -48,9 +58,7 @@ if __name__ == "__main__":
     rate = rospy.Rate(20)
     while(not rospy.is_shutdown() and not current_state.connected):
         rate.sleep()
-    
-    global odom_pub_rate
-    odom_pub_rate = rospy.Rate(50)
+
 
     rospy.loginfo("Flight controller connected")
     rospy.spin()
