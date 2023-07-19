@@ -18,14 +18,17 @@ def state_cb(msg: State):
 def odometry_cb(msg: Odometry):
     px4_compliant_msg = msg
 
-    # transform according to https://docs.px4.io/main/en/ros/external_position_estimation.html
-    px4_compliant_msg.pose.pose.position.x = msg.pose.pose.position.x
-    px4_compliant_msg.pose.pose.position.y = msg.pose.pose.position.z
-    px4_compliant_msg.pose.pose.position.z = -msg.pose.pose.position.y
+    # transform from FLU (ROS convention) to FRD (PX4 convention) 
+    # according to https://docs.px4.io/main/en/ros/external_position_estimation.html
+    px4_compliant_msg.pose.pose.position.x = msg.pose.pose.position.y
+    px4_compliant_msg.pose.pose.position.y = msg.pose.pose.position.x
+    px4_compliant_msg.pose.pose.position.z = -msg.pose.pose.position.z
 
-    px4_compliant_msg.pose.pose.orientation.x = msg.pose.pose.orientation.x
-    px4_compliant_msg.pose.pose.orientation.y = msg.pose.pose.orientation.z
-    px4_compliant_msg.pose.pose.orientation.z = -msg.pose.pose.orientation.y
+    px4_compliant_msg.pose.pose.orientation.x = msg.pose.pose.orientation.y
+    px4_compliant_msg.pose.pose.orientation.y = msg.pose.pose.orientation.x
+    px4_compliant_msg.pose.pose.orientation.z = -msg.pose.pose.orientation.z
+
+    px4_compliant_msg.child_frame_id
 
     odom_pub.publish(px4_compliant_msg)
     odom_pub_rate.sleep()
