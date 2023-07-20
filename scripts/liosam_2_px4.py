@@ -5,6 +5,7 @@ Node for relaying LIO pose from LIO-SAM to PX4
 """
 
 import rospy
+import copy
 from mavros_msgs.msg import State
 from nav_msgs.msg import Odometry
 
@@ -16,30 +17,30 @@ def state_cb(msg: State):
 
 # odometry_cb: Transform and publish LIO pose to PX4
 def odometry_cb(msg: Odometry):
-    px4_compliant_msg = msg
+    px4_compliant_msg = copy.deepcopy(msg)
 
     # transform from FLU (ROS convention) to FRD (PX4 convention) 
     # according to https://docs.px4.io/main/en/ros/external_position_estimation.html
-    px4_compliant_msg.pose.pose.position.x = msg.pose.pose.position.x
-    px4_compliant_msg.pose.pose.position.y = -msg.pose.pose.position.y
+    px4_compliant_msg.pose.pose.position.x = msg.pose.pose.position.y
+    px4_compliant_msg.pose.pose.position.y = msg.pose.pose.position.x
     px4_compliant_msg.pose.pose.position.z = -msg.pose.pose.position.z
 
-    px4_compliant_msg.pose.pose.orientation.x = msg.pose.pose.orientation.x
-    px4_compliant_msg.pose.pose.orientation.y = -msg.pose.pose.orientation.y
+    px4_compliant_msg.pose.pose.orientation.x = msg.pose.pose.orientation.y
+    px4_compliant_msg.pose.pose.orientation.y = msg.pose.pose.orientation.x
     px4_compliant_msg.pose.pose.orientation.z = -msg.pose.pose.orientation.z
 
-    px4_compliant_msg.twist.twist.linear.x = px4_compliant_msg.twist.twist.linear.x
-    px4_compliant_msg.twist.twist.linear.y = -px4_compliant_msg.twist.twist.linear.y
-    px4_compliant_msg.twist.twist.linear.z = -px4_compliant_msg.twist.twist.linear.z
+    px4_compliant_msg.twist.twist.linear.x = msg.twist.twist.linear.x
+    px4_compliant_msg.twist.twist.linear.y = -msg.twist.twist.linear.y
+    px4_compliant_msg.twist.twist.linear.z = -msg.twist.twist.linear.z
 
-    px4_compliant_msg.twist.twist.angular.x = px4_compliant_msg.twist.twist.angular.x
-    px4_compliant_msg.twist.twist.angular.y = -px4_compliant_msg.twist.twist.angular.y
-    px4_compliant_msg.twist.twist.angular.z = -px4_compliant_msg.twist.twist.angular.z
+    px4_compliant_msg.twist.twist.angular.x = msg.twist.twist.angular.x
+    px4_compliant_msg.twist.twist.angular.y = -msg.twist.twist.angular.y
+    px4_compliant_msg.twist.twist.angular.z = -msg.twist.twist.angular.z
     
     px4_compliant_msg.child_frame_id = "base_link"
 
     global time_last_odom
-    if(rospy.Time.now() - time_last_odom > rospy.Duration(0.015)):
+    if(rospy.Time.now() - time_last_odom > rospy.Duration(0.02)):
         odom_pub.publish(px4_compliant_msg)
         time_last_odom = rospy.Time.now()
 
