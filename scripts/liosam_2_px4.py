@@ -62,5 +62,8 @@ if __name__ == "__main__":
 
 
     rospy.loginfo("Flight controller connected")
+
+    state_sub.unregister()
+
     rospy.spin()
 
