@@ -29,21 +29,12 @@ def odometry_cb(msg: Odometry):
     px4_compliant_msg.pose.pose.orientation.y = msg.pose.pose.orientation.x
     px4_compliant_msg.pose.pose.orientation.z = -msg.pose.pose.orientation.z
 
-<<<<<<< HEAD
     px4_compliant_msg.twist.twist.linear.x = msg.twist.twist.linear.x
     px4_compliant_msg.twist.twist.linear.y = -msg.twist.twist.linear.y
     px4_compliant_msg.twist.twist.linear.z = -msg.twist.twist.linear.z
 
     px4_compliant_msg.twist.twist.angular.x = msg.twist.twist.angular.x
     px4_compliant_msg.twist.twist.angular.y = -msg.twist.twist.angular.y
-=======
-    px4_compliant_msg.twist.twist.linear.x = msg.twist.twist.linear.y
-    px4_compliant_msg.twist.twist.linear.y = msg.twist.twist.linear.x
-    px4_compliant_msg.twist.twist.linear.z = -msg.twist.twist.linear.z
-
-    px4_compliant_msg.twist.twist.angular.x = msg.twist.twist.angular.y
-    px4_compliant_msg.twist.twist.angular.y = msg.twist.twist.angular.x
->>>>>>> a3a9c07dfd45b5c58911ebf2e6fa4c99cfa672f2
     px4_compliant_msg.twist.twist.angular.z = -msg.twist.twist.angular.z
     
     px4_compliant_msg.child_frame_id = "base_link"
