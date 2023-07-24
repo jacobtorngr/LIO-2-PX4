@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     odom_sub = rospy.Subscriber("odometry/imu", Odometry, callback = odometry_cb)
 
-    while "lio_msg" not in globals():
+    while (not rospy.is_shutdown() and "lio_msg" not in globals()):
          rate.sleep()
     rospy.loginfo("Receiving LIO data")
     
