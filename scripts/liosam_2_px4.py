@@ -2,6 +2,8 @@
 
 """
 Node for relaying LIO pose from LIO-SAM to PX4
+For more info, see:
+https://docs.px4.io/main/en/ros/external_position_estimation.html
 """
 
 import rospy
@@ -30,24 +32,12 @@ class OdometryRelay:
             global lio_msg
             px4_compliant_msg = copy.deepcopy(lio_msg)
 
-            # transform from FLU (ROS convention) to FRD (PX4 convention) 
-            # according to https://docs.px4.io/main/en/ros/external_position_estimation.html
-            px4_compliant_msg.pose.pose.position.x = lio_msg.pose.pose.position.y
-            px4_compliant_msg.pose.pose.position.y = lio_msg.pose.pose.position.x
-            px4_compliant_msg.pose.pose.position.z = -lio_msg.pose.pose.position.z
-
-            px4_compliant_msg.pose.pose.orientation.x = lio_msg.pose.pose.orientation.y
-            px4_compliant_msg.pose.pose.orientation.y = lio_msg.pose.pose.orientation.x
-            px4_compliant_msg.pose.pose.orientation.z = -lio_msg.pose.pose.orientation.z
-
-            px4_compliant_msg.twist.twist.linear.x = lio_msg.twist.twist.linear.x
-            px4_compliant_msg.twist.twist.linear.y = -lio_msg.twist.twist.linear.y
-            px4_compliant_msg.twist.twist.linear.z = -lio_msg.twist.twist.linear.z
-
-            px4_compliant_msg.twist.twist.angular.x = lio_msg.twist.twist.angular.x
-            px4_compliant_msg.twist.twist.angular.y = -lio_msg.twist.twist.angular.y
-            px4_compliant_msg.twist.twist.angular.z = -lio_msg.twist.twist.angular.z
-            
+            # The actual child frame of "odometry/imu" is called "odom_imu"
+            # which does not appear in the tf_tree, nor follows ROS convention
+            # https://www.ros.org/reps/rep-0105.html 
+            # Instead, assume "odom_imu" is the same as "base_link", and let
+            # Mavros Odometry plugin handle all nececssary transforms
+            # https://github.com/mavlink/mavros/blob/master/mavros_extras/src/plugins/odom.cpp
             px4_compliant_msg.child_frame_id = "base_link"
 
             self.odom_pub.publish(px4_compliant_msg)
