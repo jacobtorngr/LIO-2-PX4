@@ -2,8 +2,6 @@
 
 """
 Node for relaying LIO pose from LIO-SAM to PX4
-For more info, see:
-https://docs.px4.io/main/en/ros/external_position_estimation.html
 """
 
 import rospy
@@ -34,9 +32,13 @@ class OdometryRelay:
 
             # The actual child frame of "odometry/imu" is called "odom_imu"
             # which does not appear in the tf_tree, nor follows ROS convention
-            # https://www.ros.org/reps/rep-0105.html 
-            # Instead, assume "odom_imu" is the same as "base_link", and let
-            # Mavros Odometry plugin handle all nececssary transforms
+            # (https://www.ros.org/reps/rep-0105.html). After inspection in rviz,
+            # it appears that the frame "odom_imu" is the same as "base_link".
+            # "odom_imu" also shares parent frame with "base_link", that is, "odom".
+            # Therefore, assume they are identical and rename the child frame from
+            # "odom_imu" to "base_link" and let MAVROS Odometry plugin handle all
+            # necessary transforms from ROS to PX4 coordinate systems.
+            # MAVROS Odometry plugin:
             # https://github.com/mavlink/mavros/blob/master/mavros_extras/src/plugins/odom.cpp
             px4_compliant_msg.child_frame_id = "base_link"
 
