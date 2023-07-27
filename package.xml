@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>liosam_2_px4</name>
+  <name>lio_2_px4</name>
   <version>0.0.0</version>
-  <description>The liosam_2_px4 package</description>
+  <description>The lio_2_px4 package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

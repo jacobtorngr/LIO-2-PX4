@@ -47,7 +47,7 @@ class OdometryRelay:
 
 
 if __name__ == "__main__":
-    rospy.init_node("liosam_2_px4_node")
+    rospy.init_node("lio_2_px4_node")
 
     # Wait for Flight Controller connection
     state_sub = rospy.Subscriber("mavros/state", State, callback = state_cb)
