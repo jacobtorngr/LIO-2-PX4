@@ -40,7 +40,7 @@ class OdometryRelay:
             # necessary transforms from ROS to PX4 coordinate systems.
             # MAVROS Odometry plugin:
             # https://github.com/mavlink/mavros/blob/master/mavros_extras/src/plugins/odom.cpp
-            px4_compliant_msg.child_frame_id = "base_link"
+            px4_compliant_msg.child_frame_id = "base_link_px4"
 
             self.odom_pub.publish(px4_compliant_msg)
         
