@@ -13,8 +13,9 @@ When flying autonomously, these sensors are not enough to accurately estimate po
 attitude. TODO
 
 ### Further reading
-Article
-[PX4 documentation on external odometry](https://docs.px4.io/main/en/ros/external_position_estimation.html)
+* Article
+* [PX4 documentation on external odometry](https://docs.px4.io/main/en/ros/external_position_estimation.html)
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
