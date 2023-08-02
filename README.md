@@ -71,9 +71,9 @@ attitude. TODO
    ```
 6. Open QGroundControl and set parameter
    ```
-   EKF2_AID_MASK
+   EKF2_EV_MASK
    ```
-   to **vision position fusion** and **vision yaw fusion**, and parameter
+   (EKF2_AID_MASK in PX4 v1.13 and earlier) to **vision position fusion** and **vision yaw fusion**, and parameter
       ```
    SENS_BOARD_ROT
    ```
@@ -88,7 +88,16 @@ attitude. TODO
    ```
 
 ## Tuning
-TODO
+The main tuning parameters are
+```
+EKF2_EV_POS_<X,Y,Z>
+```
+denoting the offset between the PX4 body frame and external odometry frame of reference, and
+```
+EKF2_EV_DELAY
+```
+setting the time delay between the external odometry relative to the internal IMU:s. Further instructions on how to tune can be found in the [PX4 EV and MoCap guide](https://docs.px4.io/main/en/ros/external_position_estimation.html)
+
 
 <!-- CONTACT -->
 ## Contact
