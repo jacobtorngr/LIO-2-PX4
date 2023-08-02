@@ -14,10 +14,10 @@ in theory should handle all coordinate transformations. To get it to work, some 
 
 Why LIO and not LIDAR? When PX4 fuses LIO, and LIO-SAM uses the flight controller's internal IMU:s, the IMU data is fused twice. Once by LIO-SAM and then by PX4. 
 The reason is that the pure LIDAR odometry is too slow (5Hz on the development setup), while LIO is at 200Hz. PX4 requires 30-50Hz to fuse external odometry. This "double-fusion" has not 
-been shown to be a problem in the testing (see <em>Examples</em> below or the article). It seems to work but requires further testing.
+been shown to be a problem in the testing (see <em>Examples</em> below or the paper). It seems to work but requires further testing.
 
 ### Further reading
-* Article
+* Paper
 * [PX4 documentation on external odometry](https://docs.px4.io/main/en/ros/external_position_estimation.html)
 
 
