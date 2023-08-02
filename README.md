@@ -6,11 +6,15 @@ ROS package/node for relaying LIDAR odometry from [LIO-SAM](https://github.com/T
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-This is a proof of concept showing that interfacing [LIDAR](https://en.wikipedia.org/wiki/Lidar) with low-level flight flight control is possible.
-Typical flight controllers such as [Pixhawk](https://pixhawk.org/) or [Cube Orange](https://www.cubepilot.com/#/home)
-only have accelerometers, gyroscopes, magnetometers and barometers as onboard sensors.
-When flying autonomously, these sensors are not enough to accurately estimate position, velocity and
-attitude. TODO
+This is a proof of concept showing that interfacing [LIDAR](https://en.wikipedia.org/wiki/Lidar) with low-level flight flight control is possible. It uses PX4's
+[external vision pipeline](https://docs.px4.io/main/en/ros/external_position_estimation.html).
+The ```lio_2_px4_node``` node subscribes to LIDAR intertial odometry (LIO, fused IMU and LIDAR data) from the LIO-SAM package on ROS topic ```odometry/imu```, downsamples it to 50Hz 
+and publishes it on ```mavros/odometry/out```, where the [MAVROS Odometry plugin](http://docs.ros.org/en/noetic/api/mavros_extras/html/odom_8cpp_source.html)
+in theory should handle all coordinate transformations. To get it to work, some adjustments to the coordinate frames are made as can be seen in the installation guide below.
+
+Why LIO and not LIDAR? When PX4 fuses LIO, and LIO-SAM uses the flight controller's internal IMU:s, the IMU data is fused twice. Once by LIO-SAM and then by PX4. 
+The reason is that the pure LIDAR odometry is too slow (5Hz on the development setup), while LIO is at 200Hz. PX4 requires 30-50Hz to fuse external odometry. This "double-fusion" has not 
+been shown to be a problem in the testing (see <em>Examples</em> below or the article). It seems to work but requires further testing.
 
 ### Further reading
 * Article
@@ -70,34 +74,40 @@ attitude. TODO
    source devel/setup.bash
    ```
 6. Open QGroundControl and set parameter
-   ```
-   EKF2_EV_MASK
-   ```
-   (EKF2_AID_MASK in PX4 v1.13 and earlier) to **vision position fusion** and **vision yaw fusion**, and parameter
-      ```
-   SENS_BOARD_ROT
-   ```
-   to **Yaw 90 deg**. Reboot the flight controller.
+   ```SENS_BOARD_ROT```
+   to **Yaw 90 deg**.
+   The following parameter settings are optional but recommended. Set
+   ```EKF2_EV_MASK```
+   to **vision position fusion** and **vision yaw fusion** (```EKF2_AID_MASK``` in PX4 v1.13 and earlier). Set
+   ```EKF2_MAG_TYPE```
+   to **5** (magnetometer disabled).
+   
+8. Reboot the flight controller.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Run the package
+### Run the package
   Simply run the Python script:
    ```sh
    rosrun lio_2_px4 lio_2_px4.py
    ```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Tuning
 The main tuning parameters are
-```
-EKF2_EV_POS_<X,Y,Z>
-```
+```EKF2_EV_POS_<X,Y,Z>```
 denoting the offset between the PX4 body frame and external odometry frame of reference, and
-```
-EKF2_EV_DELAY
-```
-setting the time delay between the external odometry relative to the internal IMU:s. Further instructions on how to tune can be found in the [PX4 EV and MoCap guide](https://docs.px4.io/main/en/ros/external_position_estimation.html)
+```EKF2_EV_DELAY```
+setting the time delay between the external odometry relative to the internal IMU:s. Further
+instructions on how to tune can be found in the [PX4 EV and MoCap guide](https://docs.px4.io/main/en/ros/external_position_estimation.html).
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Examples
+[This Google Drive folder](https://drive.google.com/drive/folders/1MJeX_GaXWPaaHPx7-lXcfXu0nH8P8apE?usp=sharing) contains
+rosbags and px4 logs comparing different configurations, with and without this package. 
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTACT -->
 ## Contact
