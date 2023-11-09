@@ -1,6 +1,9 @@
 # LIO-2-PX4
 ROS package/node for relaying LIDAR odometry from [LIO-SAM](https://github.com/TixiaoShan/LIO-SAM) to [PX4 Autopilot](https://px4.io/).
 
+### UPDATE 2023-11-09
+After tests on actual drones, it appears that the coordinate frame adjustment is not needed for flight. The installation procedure below has been adjusted accordingly. The code has also been adjusted to avoid name space conflicts.
+
 <a name="readme-top"></a>
 
 
@@ -40,49 +43,27 @@ been shown to be a problem in the testing (see <em>Examples</em> below or the ac
 1. Clone the repo in your catkin workspace:
    ```sh
    cd <YOUR CATKIN WORKSPACE>/src
+   ```
+   ```sh
    git clone https://github.com/jacobtorngr/LIO-2-PX4.git
    ```
-2. Modify px4.launch inside MAVROS (or copy it to create a new launch file):
-   ```sh
-   roscd mavros
-   cd launch
-   gedit px4.launch
-   ```
-   Insert the following line:
-   ```xml
-   <node pkg="tf" type="static_transform_publisher" name="tf_baseLink_externalPoseChildFrame" args="0 0 0 -1.57079632679 0 0 base_link base_link_px4 1000"/>
-   ```
-3. Modify px4_config.yaml in the same directory (or copy it to make a new one):
-   ```sh
-   gedit px4_config.yaml
-   ```
-   Find the <em>odometry</em> section and chage the following line:
-   ```yaml
-   odom_child_id_des: "base_link"
-   ```
-   into:
-   ```yaml
-   odom_child_id_des: "base_link_px4"
-   ```
-4. Go back to your catkin workspace and build it:
+2. Go back to your catkin workspace and build it:
    ```sh
    cd ~/<YOUR CATKIN WORKSPACE>
+   ```
+   ```sh
    catkin build
    ```
-5. Source it:
+3. Source:
    ```sh
+   source /opt/ros/noetic/setup.bash
    source devel/setup.bash
    ```
-6. Open QGroundControl and set parameter
-   ```SENS_BOARD_ROT```
-   to **Yaw 90 deg**.
-   The following parameter settings are optional but recommended. Set
+4. Open QGroundControl and set parameters (optional but recommended):
    ```EKF2_EV_MASK```
-   to **vision position fusion** and **vision yaw fusion** (```EKF2_AID_MASK``` in PX4 v1.13 and earlier). Set
-   ```EKF2_MAG_TYPE```
-   to **5** (magnetometer disabled).
+   to **vision position fusion** and **vision yaw fusion** (```EKF2_AID_MASK``` in PX4 v1.13 and earlier).
    
-8. Reboot the flight controller.
+5. Reboot the flight controller.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
