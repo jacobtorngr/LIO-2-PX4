@@ -25,7 +25,7 @@ def odometry_cb(msg: Odometry):
 
 class OdometryRelay:
     def __init__(self):
-        self.odom_pub = rospy.Publisher("mavros/odometry/out", Odometry, queue_size=5)
+        self.odom_pub = rospy.Publisher("~/mavros/odometry/out", Odometry, queue_size=5)
 
     def read_and_pub_lio(self, event=None):
             global lio_msg
@@ -42,14 +42,11 @@ class OdometryRelay:
             # "base_link", and sending it to MAVROS odometry plugin for PX4 frame
             # transformation (FLU to FRD according to:
             # https://docs.px4.io/main/en/ros/external_position_estimation.html#reference-frames-and-ros).
-            # However, there seems to be a 90 degree yaw offset in the PX4 internal 
-            # local frame called "map", that requires an appropriate transform 
-            # to external odometry messages. A solution that works, but is a bit hacky
-            # is to set the PX4 parameter "SENS_BOARD_ROT" to "Yaw 90deg" to correct the 
-            # PX4 parent frame, and then create a 90 degree yawed child frame here called
-            # "base_link_px4" for sending and receiving odometry. See README for how to
-            # set it up.
-            px4_compliant_msg.child_frame_id = "base_link_px4"
+
+            # UPDATE 2023-11-09: To avoid a name space conflict with MAVROS's "odom" and LIO-SAM's "odom", 
+            # the parent frame id is specified to be MAVROS's "odom".
+            px4_compliant_msg.header.frame_id = "odom"
+            px4_compliant_msg.child_frame_id = "base_link"
 
             self.odom_pub.publish(px4_compliant_msg)
         
@@ -58,23 +55,29 @@ if __name__ == "__main__":
     rospy.init_node("lio_2_px4_node")
 
     # Wait for Flight Controller connection
-    state_sub = rospy.Subscriber("mavros/state", State, callback = state_cb)
+    state_sub = rospy.Subscriber("~/mavros/state", State, callback = state_cb)
     rate = rospy.Rate(20)
 
+    rospy.loginfo("Waiting for flight controller connection")
     while(not rospy.is_shutdown() and not current_state.connected):
         rate.sleep()
-    rospy.loginfo("Flight controller connected")
+    
+    if (not rospy.is_shutdown()):
+        rospy.loginfo("Flight controller connected")
     
     # Unregister state sub when connected
     state_sub.unregister()
 
     # Subscribe to LIO-SAM odometry messages, and store msg in global variable "lio_msg"
-    odom_sub = rospy.Subscriber("odometry/imu", Odometry, callback = odometry_cb)
+    odom_sub = rospy.Subscriber("~/odometry/imu", Odometry, callback = odometry_cb)
 
     # Wait for LIO-SAM to start streaming
+    rospy.loginfo("Waiting for LIO-SAM")
     while (not rospy.is_shutdown() and "lio_msg" not in globals()):
          rate.sleep()
-    rospy.loginfo("Receiving LIO data")
+    
+    if (not rospy.is_shutdown()):
+        rospy.loginfo("Receiving LIO data")
     
     # Relay odometry messages at a suitable rate for PX4 (30-50Hz)
     odr = OdometryRelay()
