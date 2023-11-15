@@ -11,6 +11,9 @@ from nav_msgs.msg import Odometry
 
 current_state = State()
 
+# Fill in the name space of MAVROS and LIO-SAM topics here
+name_space = "shafter3"
+
 # state_cb: Read fcu connection and store in global variable
 def state_cb(msg: State):
     global current_state
@@ -25,7 +28,7 @@ def odometry_cb(msg: Odometry):
 
 class OdometryRelay:
     def __init__(self):
-        self.odom_pub = rospy.Publisher("~/mavros/odometry/out", Odometry, queue_size=5)
+        self.odom_pub = rospy.Publisher(name_space + "/mavros/odometry/out", Odometry, queue_size=5)
 
     def read_and_pub_lio(self, event=None):
             global lio_msg
@@ -55,10 +58,10 @@ if __name__ == "__main__":
     rospy.init_node("lio_2_px4_node")
 
     # Wait for Flight Controller connection
-    state_sub = rospy.Subscriber("~/mavros/state", State, callback = state_cb)
+    state_sub = rospy.Subscriber(name_space + "/mavros/state", State, callback = state_cb)
     rate = rospy.Rate(20)
 
-    rospy.loginfo("Waiting for flight controller connection")
+    rospy.loginfo("Waiting for flight controller connection\n Is the name space of MAVROS and LIO-SAM set correctly in the code?")
     while(not rospy.is_shutdown() and not current_state.connected):
         rate.sleep()
     
@@ -69,10 +72,12 @@ if __name__ == "__main__":
     state_sub.unregister()
 
     # Subscribe to LIO-SAM odometry messages, and store msg in global variable "lio_msg"
-    odom_sub = rospy.Subscriber("~/odometry/imu", Odometry, callback = odometry_cb)
+    odom_sub = rospy.Subscriber(name_space + "/odometry/imu", Odometry, callback = odometry_cb)
 
     # Wait for LIO-SAM to start streaming
-    rospy.loginfo("Waiting for LIO-SAM")
+    if (not rospy.is_shutdown()):
+    	rospy.loginfo("Waiting for LIO-SAM")
+    	
     while (not rospy.is_shutdown() and "lio_msg" not in globals()):
          rate.sleep()
     
